@@ -1,0 +1,49 @@
+﻿@page "/addticket"
+@using lab6.Data
+@using lab6.Services
+@inherits OwningComponentBase<TicketServices>
+
+<h1>Add new ticket</h1>
+
+<EditForm Model="_ticket" OnValidSubmit="AddTicket" >
+	<label for="reader">Choose reader</label>
+	<InputSelect @bind-Value="_ticket.ReaderID" id="reader">
+		<option value="%">Choose reader</option>
+		@foreach(var reader in readers)
+		{
+			<option value="@reader.ID">@reader.Surname</option>
+		}
+	</InputSelect>
+	<br/>
+	<label>Date start</label>
+	<InputDate @bind-Value="_ticket.DateStart" />
+	<br/>
+	<label>Date end</label>
+	<InputDate @bind-Value="_ticket.DateEnd" />
+	<br/>
+
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<button type="submit">Create new ticket</button>
+	<button><a href="/tickets">Return to all tickets</a></button>
+
+</EditForm>
+
+@code {
+	[Inject] NavigationManager navigationManager{ get; set; } = null!;
+
+	private Ticket _ticket = new Ticket();
+	private List<Reader> readers = new List<Reader>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		readers = await Service.GetReadersFromTickets();
+	}
+
+	private async Task AddTicket()
+	{
+		await Service.AddTicket(_ticket);
+		navigationManager.NavigateTo("/tickets");
+	} 
+}

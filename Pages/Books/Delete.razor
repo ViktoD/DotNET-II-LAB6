@@ -1,0 +1,45 @@
+﻿@page "/deletebook/{id:int}"
+@using lab6.Data
+@using lab6.Services
+@inherits OwningComponentBase<BookServices>
+
+<h1>Delete book</h1>
+
+<EditForm Model="_book" OnValidSubmit="DeleteBook">
+	<label>Name</label>
+	<input value="@_book.Name" readonly />
+	<br/>
+	<label>Author</label>
+	<input value="@_book.Author" readonly />
+	<br/>
+	<label>Price book</label>
+	<input value="@_book.Price" readonly />
+	<br/>
+	<label>Year published</label>
+	<input value="@_book.YearPublished" readonly />
+	<br/>
+	<button type="submit">Delete book</button>
+	<button><a href="/books">Return to all books</a></button>
+
+</EditForm>
+
+@code {
+	[Inject] NavigationManager navigationManager{ get; set; } = null!;
+	[Parameter] public int id { get; set; }
+	private Book _book = new Book();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if(id <= 0)
+		{
+			navigationManager.NavigateTo("/books");
+		}
+		_book = await Service.GetBook(id);
+	}
+
+	private async Task DeleteBook()
+	{
+		await Service.DeleteBook(_book);
+		navigationManager.NavigateTo("/books");
+	}
+}

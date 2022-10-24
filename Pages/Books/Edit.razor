@@ -1,0 +1,61 @@
+﻿@page "/editbook/{id:int}"
+@using lab6.Data
+@using lab6.Services
+@inherits OwningComponentBase<BookServices>
+
+<h1>Edit book</h1>
+
+<EditForm Model="_book" OnValidSubmit="EditBook">
+	<label for="name">Name book</label>
+	<InputText @bind-Value="_book.Name" id="name" />
+	<br/>
+	<label for="author">Author</label>
+	<InputText @bind-Value="_book.Author" id="author" />
+	<br/>
+	<label>Price book</label>
+	<InputNumber @bind-Value="_book.Price"  />
+	<br/>
+	<label>Year published</label>
+	<InputNumber @bind-Value="_book.YearPublished"  />
+	<br/>
+
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+
+	<button type="submit">Add new book</button>
+	<button><a href="/books">Return to all books</a></button>
+
+</EditForm>
+
+@code {
+	[Inject] NavigationManager navigationManager{ get; set; } = null!;
+	[Parameter] public int id { get; set; }
+	private Book _book = new Book();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if(id < 0)
+		{
+			navigationManager.NavigateTo("/books");
+		}
+
+		if (id != 0)
+		{
+			_book = await Service.GetBook(id);
+		}
+	}
+
+	private async Task EditBook()
+	{
+		if (id == 0)
+		{
+			await Service.AddBook(_book);
+		}
+		else
+		{
+			await Service.EditBook(_book);
+		}
+		navigationManager.NavigateTo("/books");
+	}
+}
